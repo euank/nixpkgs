@@ -54,4 +54,6 @@ self: super: {
     pg_safeupdate = super.callPackage ./ext/pg_safeupdate.nix { };
 
     repmgr = super.callPackage ./ext/repmgr.nix { };
+
+    wal2json = super.callPackage ./ext/wal2json.nix { };
 }
