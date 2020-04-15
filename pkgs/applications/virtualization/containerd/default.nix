@@ -1,10 +1,39 @@
-{ lib, fetchFromGitHub, buildGoPackage, btrfs-progs, go-md2man, utillinux }:
+{ lib, fetchFromGitHub, buildGoPackage, btrfs-progs, go-md2man, utillinux, writeShellScriptBin }:
 
 with lib;
 
+let 
+  # This is a hack so that `containerd --version` has pretty output (with the
+  # version number and git revision).
+  # We have roughly three options:
+  #   1. Patch the makefile to have env vars override it
+  #   2. leaveDotGit in our fetchgit call (which is buggy, see #8567)
+  #   3. Fake out git output so it works without patching
+  # This script is for option 3.
+  # It implements only the options the containerd makefile needs to build it with correct output.
+  mockGit = writeShellScriptBin "git" ''
+    case $1 in
+      describe)
+        echo "$VERSION"
+        ;;
+      rev-parse)
+        echo "$GIT_COMMIT"
+        ;;
+      diff)
+        exit 0
+        ;;
+      *)
+        echo "Unknown git command for mockGit hack: $@"
+        exit 1
+        ;;
+    esac
+  '';
+in
 buildGoPackage rec {
   pname = "containerd";
   version = "1.2.13";
+  # git commit for the above version's tag
+  commit = "7ad184331fa3e55e52b890ea95e65ba581ae3429";
 
   src = fetchFromGitHub {
     owner = "containerd";
@@ -16,11 +45,11 @@ buildGoPackage rec {
   goPackagePath = "github.com/containerd/containerd";
   outputs = [ "bin" "out" "man" ];
 
-  nativeBuildInputs = [ go-md2man utillinux ];
+  nativeBuildInputs = [ go-md2man utillinux mockGit ];
 
   buildInputs = [ btrfs-progs ];
 
-  buildFlags = [ "VERSION=v${version}" ];
+  buildFlags = [ "VERSION=v${version}" "GIT_COMMIT=${commit}" ];
 
   BUILDTAGS = []
     ++ optional (btrfs-progs == null) "no_btrfs";
