@@ -1,33 +1,7 @@
-# This test runs k3s, verifies it launches, and verifies a pod can be run.
+import ./make-test-python.nix ({ pkgs, ...}:
 
-import ./make-test-python.nix ({ pkgs, ...} : {
-  name = "k3s";
-  meta = with pkgs.stdenv.lib.maintainers; {
-    maintainers = [ euank ];
-  };
-
-  nodes = {
-    k3s =
-      { pkgs, ... }:
-        {
-          environment.systemPackages = [ pkgs.k3s ];
-
-          virtualisation.k3s.enable = true;
-          virtualisation.k3s.role = "server";
-          virtualisation.k3s.docker = true;
-          virtualisation.k3s.package = pkgs.k3s;
-
-          users.users = {
-            noprivs = {
-              isNormalUser = true;
-              description = "Can't access k3s by default";
-              password = "*";
-            };
-          };
-        };
-    };
-
-    testPodYaml = writeText "test.yml" ''
+let 
+    testPodYaml = pkgs.writeText "test.yml" ''
 apiVersion: v1
 kind: Pod
 metadata:
@@ -53,6 +27,32 @@ spec:
       path: /run/current-system/sw/bin
       type: Directory
     '';
+in
+{
+  name = "k3s";
+  meta = with pkgs.stdenv.lib.maintainers; {
+    maintainers = [ euank ];
+  };
+
+  nodes = {
+    k3s =
+      { pkgs, ... }: {
+          environment.systemPackages = [ pkgs.k3s ];
+
+          services.k3s.enable = true;
+          services.k3s.role = "server";
+          services.k3s.docker = true;
+          services.k3s.package = pkgs.k3s;
+
+          users.users = {
+            noprivs = {
+              isNormalUser = true;
+              description = "Can't access k3s by default";
+              password = "*";
+            };
+          };
+        };
+    };
 
   testScript = ''
     start_all()
