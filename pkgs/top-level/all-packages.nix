@@ -17981,6 +17981,8 @@ in
 
   meslo-lg = callPackage ../data/fonts/meslo-lg {};
 
+  meslolgs-nf = callPackage ../data/fonts/meslolgs-nf {};
+
   migmix = callPackage ../data/fonts/migmix {};
 
   migu = callPackage ../data/fonts/migu {};
@@ -23620,7 +23622,7 @@ in
   };
 
   nethack-x11 = callPackage ../games/nethack { x11Mode = true; };
-  
+
   netris = callPackage ../games/netris { };
 
   neverball = callPackage ../games/neverball { };
