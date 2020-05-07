@@ -2,7 +2,7 @@
 
 buildGoModule rec {
   pname = "hugo";
-  version = "0.65.1";
+  version = "0.70.0";
 
   goPackagePath = "github.com/gohugoio/hugo";
 
@@ -10,10 +10,10 @@ buildGoModule rec {
     owner = "gohugoio";
     repo = pname;
     rev = "v${version}";
-    sha256 = "09kaa5zvi0kmmhms9n162fmrxacidga9241in0vrnn8lwl3rbgam";
+    sha256 = "14g1x95jh91z9xm3xkv2psw2jn7z6bv2009miyv727df4d58nh6m";
   };
 
-  modSha256 = "1f320zbqnv2ybsp3qmlgn3rsjgp2zdb24qjd3gcys30mw48cx3na";
+  modSha256 = "015ha8pjz1fv8qg558xa6hl52fp2qd486ir9m01dvxw63xqx76ss";
 
   buildFlags = [ "-tags" "extended" ];
 

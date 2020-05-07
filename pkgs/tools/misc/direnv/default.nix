@@ -23,9 +23,9 @@ buildGoPackage rec {
 
   installPhase = ''
     mkdir -p $out
-    make install DESTDIR=$bin
-    mkdir -p $bin/share/fish/vendor_conf.d
-    echo "eval ($bin/bin/direnv hook fish)" > $bin/share/fish/vendor_conf.d/direnv.fish
+    make install DESTDIR=$out
+    mkdir -p $out/share/fish/vendor_conf.d
+    echo "eval ($out/bin/direnv hook fish)" > $out/share/fish/vendor_conf.d/direnv.fish
   '';
 
   meta = with stdenv.lib; {
@@ -41,7 +41,7 @@ buildGoPackage rec {
       In short, this little tool allows you to have project-specific
       environment variables.
     '';
-    homepage = https://direnv.net;
+    homepage = "https://direnv.net";
     license = licenses.mit;
     maintainers = with maintainers; [ zimbatm ];
   };

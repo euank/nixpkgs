@@ -22,21 +22,19 @@ buildGoPackage rec {
 
   goDeps = ./deps.nix;
 
-  outputs = [ "out" ];
-
   nativeBuildInputs = [
     pkgconfig
     dbus-factory
-    dde-api
-    go-dbus-factory
-    go-gir-generator
-    go-lib
     jq
     wrapGAppsHook
     deepin.setupHook
   ];
 
   buildInputs = [
+    dde-api
+    go-dbus-factory
+    go-gir-generator
+    go-lib
     alsaLib
     dde-daemon
     dde-dock
@@ -114,7 +112,7 @@ buildGoPackage rec {
   installPhase = ''
     make install PREFIX="$out" -C go/src/${goPackagePath}
     rm -rf $out/share/lightdm  # this is uselesss for NixOS
-    remove-references-to -t ${go} $out/bin/* $out/sbin/*
+    remove-references-to -t ${go} $out/sbin/*
   '';
 
   postFixup = ''
@@ -128,7 +126,7 @@ buildGoPackage rec {
 
   meta = with stdenv.lib; {
     description = "Starter of deepin desktop environment";
-    homepage = https://github.com/linuxdeepin/startdde;
+    homepage = "https://github.com/linuxdeepin/startdde";
     license = licenses.gpl3;
     platforms = platforms.linux;
     maintainers = with maintainers; [ romildo ];
