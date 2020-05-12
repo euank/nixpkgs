@@ -4285,6 +4285,8 @@ in
 
   input-utils = callPackage ../os-specific/linux/input-utils { };
 
+  inspircd = callPackage ../applications/networking/irc/inspircd { };
+
   intecture-agent = callPackage ../tools/admin/intecture/agent.nix { };
 
   intecture-auth = callPackage ../tools/admin/intecture/auth.nix { };
