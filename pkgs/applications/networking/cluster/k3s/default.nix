@@ -159,7 +159,7 @@ let
     };
   };
   k3sBuild = buildGoPackage rec {
-    name = "k3s-build";
+    name = "k3s-bin";
     version = "${k3sVersion}";
 
     goPackagePath = "github.com/rancher/k3s";
@@ -205,8 +205,17 @@ let
     installPhase = ''
       pushd go/src/${goPackagePath}
 
-      mkdir -p "$out/bin"
+      mkdir -p $out/bin $out/.deps
       install -m 0755 -T ./dist/artifacts/k3s${archSuffix} "$out/bin/k3s"
+
+      # leave a reference to everything that is packaged in the cli that it
+      # then unpacks and uses at runtime, otherwise we could be missing runtime
+      # dependencies
+      cat > $out/.deps/nix-runtime-deps-refs <<EOF
+        ${k3sPlugins}
+        ${k3sBuildStage1}
+        ${runc}
+      EOF
 
       popd
     '';
