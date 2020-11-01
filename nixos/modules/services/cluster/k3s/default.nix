@@ -78,7 +78,7 @@ in
 
     systemd.services.k3s = {
       description = "k3s service";
-      after = mkIf cfg.docker [ "docker.service" ];
+      after = [ "firewall.service" ] ++ (optional cfg.docker [ "docker.service" ]);
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         # See: https://github.com/rancher/k3s/blob/dddbd16305284ae4bd14c0aade892412310d7edc/install.sh#L197
