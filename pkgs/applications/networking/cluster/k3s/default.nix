@@ -44,14 +44,14 @@ with lib;
 # Those pieces of software we entirely ignore upstream's handling of, and just
 # make sure they're in the path if desired.
 let
-  k3sVersion = "1.20.6+k3s1";     # k3s git tag
-  traefikChartVersion = "1.81.0"; # taken from ./scripts/download at the above k3s tag
-  k3sRootVersion = "0.8.1";       # taken from ./scripts/download at the above k3s tag
-  k3sCNIVersion = "0.8.6-k3s1";   # taken from ./scripts/version.sh at the above k3s tag
+  k3sVersion = "1.21.0+k3s1";     # k3s git tag
+  traefikChartVersion = "9.18.2"; # taken from ./scripts/download at TRAEFIK_VERSION
+  k3sRootVersion = "0.8.1";       # taken from ./scripts/download at ROOT_VERSION
+  k3sCNIVersion = "0.8.6-k3s1";   # taken from ./scripts/version.sh at VERSION_CNIPLUGINS
   # bundled into the k3s binary
   traefikChart = fetchurl {
-    url = "https://kubernetes-charts.storage.googleapis.com/traefik-${traefikChartVersion}.tgz";
-    sha256 = "1aqpzgjlvqhil0g3angz94zd4xbl4iq0qmpjcy5aq1xv9qciwdi9";
+    url = "https://helm.traefik.io/traefik/traefik-${traefikChartVersion}.tgz";
+    sha256 = "sha256-9d7p0ngyMN27u4OPgz7yI14Zj9y36t9o/HMX5wyDpUI=";
   };
   # so, k3s is a complicated thing to package
   # This derivation attempts to avoid including any random binaries from the
@@ -96,7 +96,7 @@ let
     url = "https://github.com/k3s-io/k3s";
     rev = "v${k3sVersion}";
     leaveDotGit = true; # ./scripts/version.sh depends on git
-    sha256 = "sha256-IIZotJKQ/+WNmfcEJU5wFtZBufWjUp4MeVCRk4tSjyQ=";
+    sha256 = "sha256-wK0+WrlPX/XQ0vZmfUVzDn3FXIB6ScgAm4ASHqx3fVk=";
   };
   # Stage 1 of the k3s build:
   # Let's talk about how k3s is structured.
