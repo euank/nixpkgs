@@ -44,7 +44,9 @@ with lib;
 # Those pieces of software we entirely ignore upstream's handling of, and just
 # make sure they're in the path if desired.
 let
-  k3sVersion = "1.21.0+k3s1";     # k3s git tag
+  k3sVersion = "1.21.0+k3s1";                             # k3s git tag
+  k3sCommit = "2705431d9645d128441c578309574cd262285ae6"; # k3s git commit at the above version
+
   traefikChartVersion = "9.18.2"; # taken from ./scripts/download at TRAEFIK_VERSION
   k3sRootVersion = "0.8.1";       # taken from ./scripts/download at ROOT_VERSION
   k3sCNIVersion = "0.8.6-k3s1";   # taken from ./scripts/version.sh at VERSION_CNIPLUGINS
@@ -95,8 +97,7 @@ let
   k3sRepo = fetchgit {
     url = "https://github.com/k3s-io/k3s";
     rev = "v${k3sVersion}";
-    leaveDotGit = true; # ./scripts/version.sh depends on git
-    sha256 = "sha256-wK0+WrlPX/XQ0vZmfUVzDn3FXIB6ScgAm4ASHqx3fVk=";
+    sha256 = "sha256-xsXxf2ZYrkpOHlSFqTsHwWF3kChUjxWRjyDR3Dhg2ho=";
   };
   # Stage 1 of the k3s build:
   # Let's talk about how k3s is structured.
@@ -136,6 +137,10 @@ let
 
     nativeBuildInputs = [ git pkg-config ];
     buildInputs = [ libseccomp ];
+
+    # Versioning info for build script
+    DRONE_TAG = "v${version}";
+    DRONE_COMMIT = k3sCommit;
 
     buildPhase = ''
       pushd go/src/${goPackagePath}
@@ -185,6 +190,9 @@ let
       if stdenv.hostPlatform.system == "x86_64-linux" then ""
       else if stdenv.hostPlatform.system == "aarch64-linux" then "-arm64"
       else throw "k3s isn't being built for ${stdenv.hostPlatform.system} yet.";
+
+    DRONE_TAG = "v${version}";
+    DRONE_COMMIT = k3sCommit;
 
     # In order to build the thick k3s binary (which is what
     # ./scripts/package-cli does), we need to get all the binaries that script
