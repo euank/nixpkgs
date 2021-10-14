@@ -52,13 +52,10 @@ SYSTEMS = [
 ]
 
 RELEASE_TYPES = [
-    ReleaseType("alpha", needs_auth=True),
-    ReleaseType("demo"),
     ReleaseType("headless"),
 ]
 
 RELEASE_CHANNELS = [
-    ReleaseChannel("experimental"),
     ReleaseChannel("stable"),
 ]
 
