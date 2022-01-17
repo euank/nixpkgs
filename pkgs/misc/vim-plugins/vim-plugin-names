@@ -924,6 +924,7 @@ vim-scripts/utl.vim
 vim-scripts/vis
 vim-scripts/wombat256.vim
 vim-scripts/YankRing.vim
+vim-skk/skkeleton
 vim-syntastic/syntastic
 vim-test/vim-test
 vim-utils/vim-husk
