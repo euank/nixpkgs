@@ -885,6 +885,7 @@ vijaymarupudi/nvim-fzf-commands
 vim-airline/vim-airline
 vim-airline/vim-airline-themes
 vim-autoformat/vim-autoformat
+vim-denops/denops.vim
 vim-erlang/vim-erlang-compiler
 vim-erlang/vim-erlang-omnicomplete
 vim-erlang/vim-erlang-runtime
