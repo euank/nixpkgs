@@ -6000,6 +6000,18 @@ final: prev:
     meta.homepage = "https://github.com/lotabout/skim.vim/";
   };
 
+  skkeleton = buildVimPluginFrom2Nix {
+    pname = "skkeleton";
+    version = "2022-01-04";
+    src = fetchFromGitHub {
+      owner = "vim-skk";
+      repo = "skkeleton";
+      rev = "ab8a15d31877db89884589936a4f679afe434d37";
+      sha256 = "15lzv15lvvhqdkl1abgqhp8fryfzx9w30dipllh3zcw40bcz0i2m";
+    };
+    meta.homepage = "https://github.com/vim-skk/skkeleton/";
+  };
+
   sky-color-clock-vim = buildVimPluginFrom2Nix {
     pname = "sky-color-clock.vim";
     version = "2018-11-03";
