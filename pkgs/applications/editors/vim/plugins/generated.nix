@@ -1384,6 +1384,18 @@ final: prev:
     meta.homepage = "https://github.com/glepnir/dashboard-nvim/";
   };
 
+  ddc-vim = buildVimPluginFrom2Nix {
+    pname = "ddc.vim";
+    version = "2022-01-19";
+    src = fetchFromGitHub {
+      owner = "Shougo";
+      repo = "ddc.vim";
+      rev = "a802f73af51880203a0181085f139ac46e4f86fb";
+      sha256 = "0w7s97kbaflis0bsvd7v2iwdj58fqww8vy7ks4xixbpynyfmnnhz";
+    };
+    meta.homepage = "https://github.com/Shougo/ddc.vim/";
+  };
+
   defx-git = buildVimPluginFrom2Nix {
     pname = "defx-git";
     version = "2021-01-01";
