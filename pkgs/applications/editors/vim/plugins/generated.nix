@@ -5494,6 +5494,18 @@ final: prev:
     meta.homepage = "https://github.com/frigoeu/psc-ide-vim/";
   };
 
+  pum-vim = buildVimPluginFrom2Nix {
+    pname = "pum.vim";
+    version = "2022-01-18";
+    src = fetchFromGitHub {
+      owner = "Shougo";
+      repo = "pum.vim";
+      rev = "90853d03a82a0739a95e522334371bf1807190b4";
+      sha256 = "06c5v8adcsrk9kjpg1wa2mvw8c8lncmwnvqqbrsifqqljjpgrzll";
+    };
+    meta.homepage = "https://github.com/Shougo/pum.vim/";
+  };
+
   purescript-vim = buildVimPluginFrom2Nix {
     pname = "purescript-vim";
     version = "2021-04-21";
