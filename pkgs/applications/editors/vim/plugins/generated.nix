@@ -1408,6 +1408,18 @@ final: prev:
     meta.homepage = "https://github.com/Shougo/ddc-nvim-lsp/";
   };
 
+  ddc-sorter_rank = buildVimPluginFrom2Nix {
+    pname = "ddc-sorter_rank";
+    version = "2021-10-30";
+    src = fetchFromGitHub {
+      owner = "Shougo";
+      repo = "ddc-sorter_rank";
+      rev = "5ac213151681bf1c1aee8e89974f8982550458eb";
+      sha256 = "1gfhm3plrr450rmp1cph0zr13kmpz3kdir7rnkpgdpbk08cam7vw";
+    };
+    meta.homepage = "https://github.com/Shougo/ddc-sorter_rank/";
+  };
+
   ddc-vim = buildVimPluginFrom2Nix {
     pname = "ddc.vim";
     version = "2022-01-19";
