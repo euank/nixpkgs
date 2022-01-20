@@ -727,6 +727,7 @@ shinchu/lightline-gruvbox.vim
 Shougo/context_filetype.vim
 Shougo/ddc-matcher_head
 Shougo/ddc-nvim-lsp
+Shougo/ddc-sorter_rank
 Shougo/ddc.vim
 Shougo/defx.nvim
 Shougo/denite.nvim
