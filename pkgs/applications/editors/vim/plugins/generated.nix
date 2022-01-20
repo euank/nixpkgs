@@ -1384,6 +1384,18 @@ final: prev:
     meta.homepage = "https://github.com/glepnir/dashboard-nvim/";
   };
 
+  ddc-nvim-lsp = buildVimPluginFrom2Nix {
+    pname = "ddc-nvim-lsp";
+    version = "2021-12-27";
+    src = fetchFromGitHub {
+      owner = "Shougo";
+      repo = "ddc-nvim-lsp";
+      rev = "7ccbc099389225153fb8632555a619509fd8dd4f";
+      sha256 = "0fgj293jazd2mb47k1jvqf1hw9bbi5pnlslql3pf4ds847r7p82n";
+    };
+    meta.homepage = "https://github.com/Shougo/ddc-nvim-lsp/";
+  };
+
   ddc-vim = buildVimPluginFrom2Nix {
     pname = "ddc.vim";
     version = "2022-01-19";
