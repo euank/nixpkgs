@@ -740,6 +740,7 @@ Shougo/neomru.vim
 Shougo/neosnippet-snippets
 Shougo/neosnippet.vim
 Shougo/neoyank.vim
+Shougo/pum.vim
 Shougo/tabpagebuffer.vim
 Shougo/unite.vim
 Shougo/vimfiler.vim
