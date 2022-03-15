@@ -12634,7 +12634,7 @@ with pkgs;
     buildPackages = buildPackages // { stdenv = buildPackages.gcc8Stdenv; };
   });
 
-  go = go_1_17;
+  go = go_1_18;
 
   go-repo-root = callPackage ../development/tools/go-repo-root { };
 
