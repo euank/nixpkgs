@@ -47,11 +47,11 @@ with lib;
 # make sure they're in the path if desired.
 let
   k3sVersion = "1.23.4+k3s1";     # k3s git tag
-  k3sCommit = "43b1cb48200d8f6af85c16ed944d68fcc96b6506"; # k3s git commit at the above version
-  k3sRepoSha256 = "1sn7rd5hqfqvwj036blk0skmq6r8igbmiqk1dnpaqnkkddpzdgmc";
-  k3sVendorSha256 = "sha256-1/kQvNqFUWwch1JH+twWzBdjNYseoZyVObB1+s9WPM4=";
+  k3sCommit = "cebebd297599cf08d8d631fbc8542c41e2875d5f"; # k3s git commit at the above version
+  k3sRepoSha256 = "sha256-PtwteWA/zb5nTQH5HX9DUszESfu8Q0sz59hpdq0Moko=";
+  k3sVendorSha256 = "sha256-4jEazZg1VLBh5kAHnzPANxTqZ+chQmD1/g4KM6r9nrc=";
 
-  k3sServerVendorSha256 = "sha256-2KIFff43jfqWdxX61aWofrjmc5mMkr5aEJRFdGpLyU8=";
+  k3sServerVendorSha256 = "sha256-0cy7wPifXAuDNBJrZeJA8kHsNZn+z/VhZOXb5M4yaro=";
 
   # taken from ./manifests/traefik.yaml, extracted from '.spec.chart' https://github.com/k3s-io/k3s/blob/v1.23.3%2Bk3s1/scripts/download#L9
   # The 'patch' and 'minor' versions are currently hardcoded as single digits only, so ignore the trailing two digits. Weird, I know.
@@ -144,8 +144,8 @@ let
   # Grab this separately from a build because it's used by both stages of the
   # k3s build.
   k3sRepo = fetchgit {
-    url = "https://github.com/k3s-io/k3s";
-    rev = "v${k3sVersion}";
+    url = "https://github.com/euank/k3s";
+    rev = k3sCommit;
     sha256 = k3sRepoSha256;
   };
   # Stage 1 of the k3s build:
