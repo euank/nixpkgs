@@ -12694,7 +12694,7 @@ with pkgs;
     buildPackages = buildPackages // { stdenv = buildPackages.gcc8Stdenv; };
   });
 
-  go = go_1_17;
+  go = go_1_18;
 
   go-repo-root = callPackage ../development/tools/go-repo-root { };
 
@@ -20985,7 +20985,7 @@ with pkgs;
     go = buildPackages.go_1_18;
   };
 
-  buildGoPackage = buildGo117Package;
+  buildGoPackage = buildGo118Package;
 
   buildGo116Module = callPackage ../development/go-modules/generic {
     go = buildPackages.go_1_16;
@@ -20997,7 +20997,7 @@ with pkgs;
     go = buildPackages.go_1_18;
   };
 
-  buildGoModule = buildGo117Module;
+  buildGoModule = buildGo118Module;
 
   go2nix = callPackage ../development/tools/go2nix { };
 
