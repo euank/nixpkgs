@@ -1,6 +1,6 @@
-{ lib, buildGoModule, fetchgit }:
+{ lib, buildGo117Module, fetchgit }:
 
-buildGoModule rec {
+buildGo117Module rec {
   pname = "lint";
   version = "20201208-${lib.strings.substring 0 7 rev}";
   rev = "83fdc39ff7b56453e3793356bcff3070b9b96445";
