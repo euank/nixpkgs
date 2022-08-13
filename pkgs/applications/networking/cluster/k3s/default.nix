@@ -47,9 +47,9 @@ with lib;
 # make sure they're in the path if desired.
 let
   k3sVersion = "1.24.3+k3s1";     # k3s git tag
-  k3sCommit = "990ba0e88c90f8ed8b50e0ccd375937b841b176e"; # k3s git commit at the above version
-  k3sRepoSha256 = "0slw2j7d7ccj7k9z06l5ch3nxi07jbm6xijs774hisyv25jx94rd";
-  k3sVendorSha256 = "sha256-8jWpTUE/tJf2qpFjdsV+0i8hRf6JqATwr/YbXrZa/iA=";
+  k3sCommit = "30fc909581ba8395da0860c22830d9db3913f7b1"; # k3s git commit at the above version
+  k3sRepoSha256 = "sha256-QFeUq0ZOIbm9nLEmGvPKcMj80QRMag1XCxYYR1qFTxw=";
+  k3sVendorSha256 = "sha256-w+egdyni6NJdAmtVkH0vTi9G3s7rixXq0hkoxviexCg=";
 
   # taken from ./manifests/traefik.yaml, extracted from '.spec.chart' https://github.com/k3s-io/k3s/blob/v1.23.3%2Bk3s1/scripts/download#L9
   # The 'patch' and 'minor' versions are currently hardcoded as single digits only, so ignore the trailing two digits. Weird, I know.
@@ -143,7 +143,7 @@ let
   # k3s build.
   k3sRepo = fetchgit {
     url = "https://github.com/k3s-io/k3s";
-    rev = "v${k3sVersion}";
+    rev = k3sCommit;
     sha256 = k3sRepoSha256;
   };
   # Stage 1 of the k3s build:
