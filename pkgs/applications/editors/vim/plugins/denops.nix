@@ -15,7 +15,7 @@ final: prev:
     meta.homepage = "https://github.com/Shougo/ddc-matcher_head/";
   };
 
-  ddc-nvim-lsp = buildVimPluginFrom2Nix {
+  ddc-source-nvim-lsp = buildVimPluginFrom2Nix {
     pname = "ddc-nvim-lsp";
     version = "2022-11-24";
     src = fetchFromGitHub {
