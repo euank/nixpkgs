@@ -18,6 +18,11 @@ let
     inherit (neovimUtils) buildNeovimPluginFrom2Nix;
   };
 
+  denops = callPackage ./denops.nix {
+    inherit buildVimPluginFrom2Nix;
+    inherit (neovimUtils) buildNeovimPluginFrom2Nix;
+  };
+
   # TL;DR
   # * Add your plugin to ./vim-plugin-names
   # * run ./update.py
@@ -35,10 +40,8 @@ let
   extensible-self = lib.makeExtensible
     (extends aliases
       (extends overrides
-        (extends plugins initialPackages)
+        (extends (plugins // denops) initialPackages)
       )
     );
 in
-  extensible-self.extend (
-    (callPackage ./denops.nix {})
-  )
+  extensible-self
