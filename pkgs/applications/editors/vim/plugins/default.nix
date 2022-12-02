@@ -39,4 +39,6 @@ let
       )
     );
 in
-  extensible-self
+  extensible-self.extend (
+    (callPackage ./denops.nix {})
+  )
