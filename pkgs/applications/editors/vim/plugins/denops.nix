@@ -16,7 +16,7 @@ final: prev:
   };
 
   ddc-source-nvim-lsp = buildVimPluginFrom2Nix {
-    pname = "ddc-nvim-lsp";
+    pname = "ddc-source-nvim-lsp";
     version = "2022-11-24";
     src = fetchFromGitHub {
       owner = "Shougo";
@@ -37,6 +37,18 @@ final: prev:
       sha256 = "1k9b70r7yjp8wzjl64387wq7qgy5zq600z02ijmqcdwhg0cbxp77";
     };
     meta.homepage = "https://github.com/Shougo/ddc-sorter_rank/";
+  };
+
+  ddc-ui-native = buildVimPluginFrom2Nix {
+    pname = "ddc-ui-native";
+    version = "2022-11-26";
+    src = fetchFromGitHub {
+      owner = "Shougo";
+      repo = "ddc-ui-native";
+      rev = "5596deff1993969b0af43ff8b31da8ff08d4c47a";
+      sha256 = "0lsza19zkqymrdkp42z76v2j899857gzgfv2dp2ddrp0kmvfm04h";
+    };
+    meta.homepage = "https://github.com/Shougo/ddc-ui-native/";
   };
 
   ddc-vim = buildVimPluginFrom2Nix {
