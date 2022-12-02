@@ -2321,42 +2321,6 @@ final: prev:
     meta.homepage = "https://github.com/Shougo/ddc-matcher_head/";
   };
 
-  ddc-nvim-lsp = buildVimPluginFrom2Nix {
-    pname = "ddc-nvim-lsp";
-    version = "2021-12-27";
-    src = fetchFromGitHub {
-      owner = "Shougo";
-      repo = "ddc-nvim-lsp";
-      rev = "7ccbc099389225153fb8632555a619509fd8dd4f";
-      sha256 = "0fgj293jazd2mb47k1jvqf1hw9bbi5pnlslql3pf4ds847r7p82n";
-    };
-    meta.homepage = "https://github.com/Shougo/ddc-nvim-lsp/";
-  };
-
-  ddc-sorter_rank = buildVimPluginFrom2Nix {
-    pname = "ddc-sorter_rank";
-    version = "2021-10-30";
-    src = fetchFromGitHub {
-      owner = "Shougo";
-      repo = "ddc-sorter_rank";
-      rev = "5ac213151681bf1c1aee8e89974f8982550458eb";
-      sha256 = "1gfhm3plrr450rmp1cph0zr13kmpz3kdir7rnkpgdpbk08cam7vw";
-    };
-    meta.homepage = "https://github.com/Shougo/ddc-sorter_rank/";
-  };
-
-  ddc-vim = buildVimPluginFrom2Nix {
-    pname = "ddc.vim";
-    version = "2022-01-19";
-    src = fetchFromGitHub {
-      owner = "Shougo";
-      repo = "ddc.vim";
-      rev = "a802f73af51880203a0181085f139ac46e4f86fb";
-      sha256 = "0w7s97kbaflis0bsvd7v2iwdj58fqww8vy7ks4xixbpynyfmnnhz";
-    };
-    meta.homepage = "https://github.com/Shougo/ddc.vim/";
-  };
-
   defx-git = buildVimPluginFrom2Nix {
     pname = "defx-git";
     version = "2021-01-01";
