@@ -40,7 +40,7 @@ let
   extensible-self = lib.makeExtensible
     (extends aliases
       (extends overrides
-        (extends (plugins // denops) initialPackages)
+        (extends (extends (plugins) initialPackages) denops)
       )
     );
 in
