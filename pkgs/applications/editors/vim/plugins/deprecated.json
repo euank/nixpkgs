@@ -7,6 +7,10 @@
         "date": "2021-12-21",
         "new": "cmp-tmux"
     },
+    "ddc-nvim-lsp": {
+        "date": "2022-12-01",
+        "new": "ddc-source-nvim-lsp"
+    },
     "gist-vim": {
         "date": "2020-03-27",
         "new": "vim-gist"
