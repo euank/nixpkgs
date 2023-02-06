@@ -99,5 +99,17 @@ final: prev:
     meta.homepage = "https://github.com/vim-skk/skkeleton/";
   };
 
+  ddc-ui-pum = buildVimPluginFrom2Nix {
+    pname = "ddc-ui-pum";
+    version = "2023-02-05";
+    src = fetchFromGitHub {
+      owner = "Shougo";
+      repo = "ddc-ui-pum";
+      rev = "aa027c94834226170f03ba7cff5d25293f23a666";
+      sha256 = "1g7xhxrs1cl89ib03w3s3s6pv51y6j82psdmzpj9pc7wg9s40nfi";
+    };
+    meta.homepage = "https://github.com/Shougo/ddc-ui-pum/";
+  };
+
 
 }
