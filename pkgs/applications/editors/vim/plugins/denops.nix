@@ -15,18 +15,6 @@ final: prev:
     meta.homepage = "https://github.com/Shougo/ddc-matcher_head/";
   };
 
-  ddc-source-nvim-lsp = buildVimPluginFrom2Nix {
-    pname = "ddc-source-nvim-lsp";
-    version = "2022-11-24";
-    src = fetchFromGitHub {
-      owner = "Shougo";
-      repo = "ddc-source-nvim-lsp";
-      rev = "1795bfdbf0879054f3ca9f5ab7025ba68e0338c4";
-      sha256 = "0c3k9snjva0ibacc098h0b088p02fd0nmmsdfdr3m0784jlzvxbm";
-    };
-    meta.homepage = "https://github.com/Shougo/ddc-source-nvim-lsp/";
-  };
-
   ddc-sorter_rank = buildVimPluginFrom2Nix {
     pname = "ddc-sorter_rank";
     version = "2022-11-24";
@@ -39,62 +27,74 @@ final: prev:
     meta.homepage = "https://github.com/Shougo/ddc-sorter_rank/";
   };
 
+  ddc-source-nvim-lsp = buildVimPluginFrom2Nix {
+    pname = "ddc-source-nvim-lsp";
+    version = "2022-11-24";
+    src = fetchFromGitHub {
+      owner = "Shougo";
+      repo = "ddc-source-nvim-lsp";
+      rev = "1795bfdbf0879054f3ca9f5ab7025ba68e0338c4";
+      sha256 = "0c3k9snjva0ibacc098h0b088p02fd0nmmsdfdr3m0784jlzvxbm";
+    };
+    meta.homepage = "https://github.com/Shougo/ddc-source-nvim-lsp/";
+  };
+
   ddc-ui-native = buildVimPluginFrom2Nix {
     pname = "ddc-ui-native";
-    version = "2022-11-26";
+    version = "2023-02-05";
     src = fetchFromGitHub {
       owner = "Shougo";
       repo = "ddc-ui-native";
-      rev = "5596deff1993969b0af43ff8b31da8ff08d4c47a";
-      sha256 = "0lsza19zkqymrdkp42z76v2j899857gzgfv2dp2ddrp0kmvfm04h";
+      rev = "9b78eed8e9c70ebbb715d1d08b3fc41d07bdc553";
+      sha256 = "0aa10mmrviirclgl79xshlbwwy00iz528kzdirqi3wy3c3hgr0gd";
     };
     meta.homepage = "https://github.com/Shougo/ddc-ui-native/";
   };
 
   ddc-vim = buildVimPluginFrom2Nix {
     pname = "ddc.vim";
-    version = "2022-11-29";
+    version = "2023-02-05";
     src = fetchFromGitHub {
       owner = "Shougo";
       repo = "ddc.vim";
-      rev = "a765300420e5a166be5f24ea608b528b178c6cc8";
-      sha256 = "1hhzmvwzl9kwfjlj04pbfh54wda1vd8vahj8i80b4cvy3b24h0k7";
+      rev = "20870b49a67b123120a5867511dcacb6c319e7db";
+      sha256 = "0940ph39rqxcy01ab6cyhxf2b3xaa17h55vvqms5kmgj4dy4bg1x";
     };
     meta.homepage = "https://github.com/Shougo/ddc.vim/";
   };
 
   denops-vim = buildVimPluginFrom2Nix {
     pname = "denops.vim";
-    version = "2022-12-01";
+    version = "2023-02-01";
     src = fetchFromGitHub {
       owner = "vim-denops";
       repo = "denops.vim";
-      rev = "30286cfc8833c1b5b716b69493c69b7cb6a8922e";
-      sha256 = "163rxrdkg267fz03rjhixf7ich0jbsl3rdp79vi49jc9psrnp7bc";
+      rev = "8f3899de3d3add07105221262dca90a31c4c2d4c";
+      sha256 = "1whi5mc1hjfmhnrr2w5qsp211l0jq9q7mcvqyrf5vxcrd83raxrr";
     };
     meta.homepage = "https://github.com/vim-denops/denops.vim/";
   };
 
   pum-vim = buildVimPluginFrom2Nix {
     pname = "pum.vim";
-    version = "2022-11-27";
+    version = "2023-02-06";
     src = fetchFromGitHub {
       owner = "Shougo";
       repo = "pum.vim";
-      rev = "31aae8d39061bcdae755e468e83a3a70b72a0fce";
-      sha256 = "109jhfmvmnm1qkghjw62c95gj0k5f2j9lnpdq2pcpdjdng05rmyz";
+      rev = "24c94a941aed55aad4e4d58f037e9b55b32ec7a0";
+      sha256 = "0h68q0j0xqpkqwwsm2makwy6ggiviyily5sml3x810d48h3r2rjf";
     };
     meta.homepage = "https://github.com/Shougo/pum.vim/";
   };
 
   skkeleton = buildVimPluginFrom2Nix {
     pname = "skkeleton";
-    version = "2022-12-01";
+    version = "2023-01-23";
     src = fetchFromGitHub {
       owner = "vim-skk";
       repo = "skkeleton";
-      rev = "0a1fdd399cec1981ef2ef5e64402f1c3dec08cbe";
-      sha256 = "1i41759aclwn8z8cbc5gp5dxqsn69wmajpfx0zdyql8rc183xlv9";
+      rev = "36c783c6c9dbc2a52c4f91417c08db1a761e2149";
+      sha256 = "09s43v1a0pmnw6ymxpp15aqnb5ndkrwdmsll9h7nr37cvgv8f9l6";
     };
     meta.homepage = "https://github.com/vim-skk/skkeleton/";
   };
