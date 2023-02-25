@@ -2,13 +2,13 @@
 
 stdenv.mkDerivation rec {
   pname = "ndppd";
-  version = "0.2.5";
+  version = "20231211";
 
   src = fetchFromGitHub {
     owner = "DanielAdolfsson";
     repo = "ndppd";
-    rev = version;
-    sha256 = "0niri5q9qyyyw5lmjpxk19pv3v4srjvmvyd5k6ks99mvqczjx9c0";
+    rev = "4f0301f94345c92b723392ed2d73f04f910e6c30";
+    sha256 = "sha256-Hp3VxK+nQukWl7Plq72cFPfYfFhj+LgZun4NcTYRm4g=";
   };
 
   nativeBuildInputs = [ gzip ];
