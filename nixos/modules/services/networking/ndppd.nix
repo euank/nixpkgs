@@ -168,23 +168,7 @@ in {
       # shells out to ip for autowire
       path = with pkgs; [ iproute2 ];
       serviceConfig = {
-        ExecStart = "${pkgs.ndppd}/bin/ndppd -c ${ndppdConf}";
-
-        # Sandboxing
-        CapabilityBoundingSet = "CAP_NET_RAW CAP_NET_ADMIN";
-        ProtectSystem = "strict";
-        ProtectHome = true;
-        PrivateTmp = true;
-        PrivateDevices = true;
-        ProtectKernelTunables = true;
-        ProtectKernelModules = true;
-        ProtectControlGroups = true;
-        RestrictAddressFamilies = "AF_INET6 AF_PACKET AF_NETLINK";
-        RestrictNamespaces = true;
-        LockPersonality = true;
-        MemoryDenyWriteExecute = true;
-        RestrictRealtime = true;
-        RestrictSUIDSGID = true;
+        ExecStart = "${pkgs.ndppd}/bin/ndppd -vvv -c ${ndppdConf}";
       };
     };
   };
