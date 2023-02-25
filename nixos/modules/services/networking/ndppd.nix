@@ -165,6 +165,8 @@ in {
       documentation = [ "man:ndppd(1)" "man:ndppd.conf(5)" ];
       after = [ "network-pre.target" ];
       wantedBy = [ "multi-user.target" ];
+      # shells out to ip for autowire
+      path = with pkgs; [ iproute2 ];
       serviceConfig = {
         ExecStart = "${pkgs.ndppd}/bin/ndppd -c ${ndppdConf}";
 
