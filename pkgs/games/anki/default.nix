@@ -1,197 +1,397 @@
-{ stdenv
-, buildPythonApplication
-, lib
-, python
-, fetchurl
+{ lib
+, stdenv
+, bash
+, buildEnv
 , fetchFromGitHub
-, fetchpatch
-, lame
-, mpv-unwrapped
-, libpulseaudio
-, pyqtwebengine
-, decorator
-, beautifulsoup4
-, sqlalchemy
-, pyaudio
-, requests
-, markdown
-, matplotlib
-, pytest
-, glibcLocales
-, nose
-, jsonschema
-, setuptools
-, send2trash
-, CoreAudio
-  # This little flag adds a huge number of dependencies, but we assume that
-  # everyone wants Anki to draw plots with statistics by default.
-, plotsSupport ? true
-  # manual
-, asciidoc
+, fetchYarnDeps
+, fixup_yarn_lock
+, ninja
+, nodePackages
+, nodejs
+, nodejs-slim
+, openssl
+, pkg-config
+, protobuf
+, python39
+, qt6
+, rsync
+, rustPlatform
+, symlinkJoin
+, writeShellScriptBin
+, yarn
 }:
 
 let
-  # when updating, also update rev-manual to a recent version of
-  # https://github.com/ankitects/anki-docs
-  # The manual is distributed independently of the software.
-  version = "2.1.15";
-  sha256-pkg = "12dvyf3j9df4nrhhnqbzd9b21rpzkh4i6yhhangn2zf7ch0pclss";
-  rev-manual = "8f6387867ac37ef3fe9d0b986e70f898d1a49139";
-  sha256-manual = "0pm5slxn78r44ggvbksz7rv9hmlnsvn9z811r6f63dsc8vm6mfml";
+  pname = "anki";
+  version = "2.1.60";
+  rev = "76d8807315fcc2675e7fa44d9ddf3d4608efc487";
 
-  manual = stdenv.mkDerivation {
-    pname = "anki-manual";
-    inherit version;
-    src = fetchFromGitHub {
-      owner = "ankitects";
-      repo = "anki-docs";
-      rev = rev-manual;
-      sha256 = sha256-manual;
-    };
-    dontInstall = true;
-    nativeBuildInputs = [ asciidoc ];
-    patchPhase = ''
-      # rsync isnt needed
-      # WEB is the PREFIX
-      # We remove any special ankiweb output generation
-      # and rename every .mako to .html
-      sed -e 's/rsync -a/cp -a/g' \
-          -e "s|\$(WEB)/docs|$out/share/doc/anki/html|" \
-          -e '/echo asciidoc/,/mv $@.tmp $@/c \\tasciidoc -b html5 -o $@ $<' \
-          -e 's/\.mako/.html/g' \
-          -i Makefile
-      # patch absolute links to the other language manuals
-      sed -e 's|https://apps.ankiweb.net/docs/|link:./|g' \
-          -i {manual.txt,manual.*.txt}
-      # there’s an artifact in most input files
-      sed -e '/<%def.*title.*/d' \
-          -i *.txt
-      mkdir -p $out/share/doc/anki/html
+  src = fetchFromGitHub {
+    owner = "ankitects";
+    repo = "anki";
+    rev = version;
+    sha256 = "sha256-hNrf6asxF7r7QK2XO150yiRjyHAYKN8OFCFYX0SAiwA=";
+    fetchSubmodules = true;
+  };
+
+  anki-python = python39.withPackages (ps: with ps; [
+    attrs
+    beautifulsoup4
+    build
+    certifi
+    charset-normalizer
+    click
+    colorama
+    decorator
+    distro
+    flask
+    flask-cors
+    idna
+    importlib-metadata
+    itsdangerous
+    jinja2
+    jsonschema
+    markdown
+    markupsafe
+    orjson
+    packaging
+    pep517
+    pip
+    pip-tools
+    protobuf3
+    pyparsing
+    pyqt6
+    pyqt6-sip
+    pyqt6-webengine
+    pyrsistent
+    pysocks
+    requests
+    send2trash
+    setuptools
+    six
+    soupsieve
+    tomli
+    urllib3
+    waitress
+    werkzeug
+    wheel
+    zipp
+
+    black
+  ]);
+
+  # The runner is responsible for running the build
+  anki-runner = rustPlatform.buildRustPackage {
+    pname = "anki-build-runner";
+    inherit version src;
+    cargoHash = "sha256-3ly104TQHY32W7ZSnoQwyRYtdBKfTr7fwnzMG6k8qVk=";
+
+    buildAndTestSubdir = "build/runner";
+
+    nativeBuildInputs = [ pkg-config ];
+    buildInputs = [ openssl ];
+
+    doCheck = false;
+  };
+
+  # The configurator generates the build.ninja
+  anki-configurator = rustPlatform.buildRustPackage {
+    pname = "anki-build-configurator";
+    inherit version src;
+    cargoHash = "sha256-C6kOqYvbqcSBwGVhz02Ul3kdmFRvG9YqQ+9ZNquMLLg=";
+
+    buildAndTestSubdir = "build/configure";
+
+    doCheck = false;
+  };
+
+  anki-i18n = rustPlatform.buildRustPackage {
+    pname = "anki-build-i18n";
+    inherit version src;
+    cargoHash = "sha256-9DfenBEEw6GncdhwDSFeWZYhLqf30oECCSwnDeG175c=";
+
+    buildAndTestSubdir = "rslib/i18n";
+
+    preBuild = ''
+      mkdir -p out/rslib/i18n/
+    '';
+
+    installPhase = ''
+      mv out/rslib/i18n/strings.json $out
+    '';
+
+    doCheck = false;
+  };
+
+  anki-rsbridge = rustPlatform.buildRustPackage {
+    pname = "anki-build-rsbridge";
+    inherit version src;
+    cargoHash = "sha256-vRd6qgZF+5R/VtgJxzbvr4nWmaTGfL/Bc4eqQADbjTg=";
+
+    buildAndTestSubdir = "pylib/rsbridge";
+
+    PROTOC_BINARY = "${protobuf}/bin/protoc";
+    preBuild = ''
+      mkdir -p out/rslib/i18n/
+      echo ${builtins.substring 0 8 rev} > out/buildhash
+    '';
+
+    installPhase = ''
+      mkdir -p $out/lib
+      mv target/x86_64-unknown-linux-gnu/release/librsbridge.so $out/lib
+    '';
+
+    doCheck = false;
+  };
+
+  fakeGit = writeShellScriptBin "git" ''
+    #!${bash}/bin/bash
+
+    case "$@" in
+      "rev-parse --short=8 HEAD")
+        echo ${builtins.substring 0 8 rev}
+      ;;
+      *submodule*update*)
+        exit 0
+      ;;
+      *)
+        echo "Unrecognized git: $@"
+        exit 1
+      ;;
+    esac
+  '';
+
+  fakeCargo = writeShellScriptBin "cargo" ''
+    #!${bash}/bin/bash
+
+    case "$@" in
+      "run -p configure")
+        exec ${anki-configurator}/bin/configure
+        ;;
+
+      *build*anki_i18n)
+        exit 0
+        ;;
+      *build*runner)
+        exit 0
+        ;;
+      *build*configure)
+        exit 0
+        ;;
+      *build*archives*)
+        exit 0
+        ;;
+      *build*rsbridge*)
+        exit 0
+        ;;
+      *build*)
+        1>&2 echo "Not building: cargo $@"
+        exit 1
+        ;;
+      *)
+        echo "Unknown cargo command: $@"
+        exit 1
+        ;;
+    esac
+  '';
+
+  fakePipSync = writeShellScriptBin "pip-sync" ''
+    exit 0
+  '';
+
+  fakeArchive = writeShellScriptBin "archives" ''
+    1>&2 echo "Not archives: $@"
+    exit 0
+  '';
+
+  fakeCorepack = writeShellScriptBin "corepack" ''
+    1>&2 echo "Fake corepack: $@"
+    exit 0
+  '';
+
+  fakeRunner = writeShellScriptBin "runner" ''
+    #!${bash}/bin/bash
+
+    case "$@" in
+      pyenv*requirements*txt)
+        exit 0
+        ;;
+      *)
+        ${anki-runner}/bin/runner "$@"
+      ;;
+    esac
+  '';
+
+  offlineYarn = writeShellScriptBin "yarn" ''
+    [[ "$1" == "install" ]] && exit 0
+    exec ${yarn}/bin/yarn --offline "$@"
+  '';
+
+  pyEnv = symlinkJoin {
+    name = "anki-pyenv-${version}";
+    paths = with python39.pkgs; [
+      pip
+      fakePipSync
+      pyqt6
+      anki-python
+      build
+      mypy
+      black
+      isort
+      pylint
+      pytest
+      mypy-protobuf
+    ];
+  };
+
+  yarnOfflineCache = fetchYarnDeps {
+    yarnLock = "${src}/yarn.lock";
+    sha256 = "sha256-bAtmMGWi5ETIidFFnG3jzJg2mSBnH5ONO2/Lr9A3PpQ=";
+  };
+
+  # https://discourse.nixos.org/t/mkyarnpackage-lockfile-has-incorrect-entry/21586/3
+  anki-nodemodules = stdenv.mkDerivation {
+    pname = "anki-nodemodules";
+    inherit version src yarnOfflineCache;
+
+    nativeBuildInputs = [
+      fixup_yarn_lock
+      yarn
+      nodejs-slim
+    ];
+
+    configurePhase = ''
+      export HOME=$NIX_BUILD_TOP
+      yarn config --offline set yarn-offline-mirror $yarnOfflineCache
+      fixup_yarn_lock yarn.lock
+      yarn install --offline --frozen-lockfile --ignore-scripts --no-progress --non-interactive
+      patchShebangs node_modules/
+    '';
+
+    installPhase = ''
+      mv node_modules $out
     '';
   };
 
-in
-buildPythonApplication rec {
-  pname = "anki";
-  inherit version;
-  format = "other";
-
-  src = fetchurl {
-    urls = [
-      "https://apps.ankiweb.net/downloads/current/${pname}-${version}-source.tgz"
-      # "https://apps.ankiweb.net/downloads/current/${name}-source.tgz"
-      # "http://ankisrs.net/download/mirror/${name}.tgz"
-      # "http://ankisrs.net/download/mirror/archive/${name}.tgz"
-    ];
-    sha256 = sha256-pkg;
+  # Mask ninja's setup hooks, we just want the binary, not the implicit 'ninja install'
+  ninja-bin = buildEnv {
+    name = ninja.name;
+    paths = [ ninja ];
+    pathsToLink = [ "/bin" ];
   };
+in
+python39.pkgs.buildPythonApplication {
+  inherit pname version src;
 
-  outputs = [ "out" "doc" "man" ];
+  patches = [ ./gl-fixup.patch ];
 
-  propagatedBuildInputs = [
-    pyqtwebengine
-    sqlalchemy
+  buildInputs = [ anki-rsbridge qt6.qtbase ];
+  nativeBuildInputs = [ ninja-bin fakeGit fakeCargo fakeCorepack rsync offlineYarn fixup_yarn_lock qt6.wrapQtAppsHook ];
+  dontWrapQtApps = true;
+  propagatedBuildInputs = with python39.pkgs; [
+    attrs
     beautifulsoup4
-    send2trash
-    pyaudio
-    requests
+    build
+    certifi
+    charset-normalizer
+    click
+    colorama
     decorator
-    markdown
+    distro
+    flask
+    flask-cors
+    idna
+    importlib-metadata
+    itsdangerous
+    jinja2
     jsonschema
+    markdown
+    markupsafe
+    orjson
+    packaging
+    pep517
+    pip
+    pip-tools
+    python39.pkgs.protobuf
+    pyparsing
+    pyqt6
+    pyqt6-sip
+    pyqt6-webengine
+    pyrsistent
+    pysocks
+    requests
+    send2trash
     setuptools
-  ]
-  ++ lib.optional plotsSupport matplotlib
-  ++ lib.optionals stdenv.isDarwin [ CoreAudio ]
-  ;
-
-  nativeCheckInputs = [ pytest glibcLocales nose ];
-
-  nativeBuildInputs = [ pyqtwebengine.wrapQtAppsHook ];
-  buildInputs = [ lame mpv-unwrapped libpulseaudio ];
-
-  patches = [
-    # Disable updated version check.
-    ./no-version-check.patch
-    (fetchpatch {
-      name = "fix-mpv-args.patch";
-      url = "https://sources.debian.org/data/main/a/anki/2.1.15+dfsg-3/debian/patches/fix-mpv-args.patch";
-      sha256 = "1dimnnawk64m5bbdbjrxw5k08q95l728n94cgkrrwxwavmmywaj2";
-    })
-    (fetchpatch {
-      name = "anki-2.1.15-unescape.patch";
-      url = "https://795309.bugs.gentoo.org/attachment.cgi?id=715200";
-      sha256 = "14rz864kdaba4fd1marwkyz9n1jiqnbjy4al8bvwlhpvp0rm1qk6";
-    })
+    six
+    soupsieve
+    tomli
+    urllib3
+    waitress
+    werkzeug
+    zipp
   ];
 
-  # Anki does not use setup.py
-  dontBuild = true;
+  # Activate optimizations
+  RELEASE = "1";
 
-  postPatch = ''
-    # Remove QT translation files. We'll use the standard QT ones.
-    rm "locale/"*.qm
+  PYTHON_BINARY = "${anki-python}/bin/python";
+  PROTOC_BINARY = "${protobuf}/bin/protoc";
+  NODE_BINARY = "${nodejs}/bin/node";
 
-    # hitting F1 should open the local manual
-    substituteInPlace anki/consts.py \
-      --replace 'HELP_SITE="http://ankisrs.net/docs/manual.html"' \
-                'HELP_SITE="${manual}/share/doc/anki/html/manual.html"'
+  inherit yarnOfflineCache;
+
+  buildPhase = ''
+    export RUST_BACKTRACE=1
+    export RUST_LOG=debug
+    mkdir -p out
+    echo ${builtins.substring 0 8 rev} > out/buildhash
+    touch out/env
+    mkdir -p out/rust/debug
+    ln -vsf ${pyEnv} ./out/pyenv
+    ln -vsf ${pyEnv} ./out/pyenv-qt5
+    ln -vsf ${anki-runner}/bin/runner ./out/rust/debug/runner
+    ln -vsf ${anki-configurator}/bin/configure ./out/rust/debug/configure
+    ln -vsf ${fakeArchive}/bin/archives ./out/rust/debug/archives
+    mkdir -p out/extracted/node/bin
+    ln -vsf ${offlineYarn}/bin/yarn out/extracted/node/bin/yarn
+    mkdir -p .git
+    touch .git/HEAD
+    mkdir -p out/rslib/i18n
+    ln -vsf ${anki-i18n} out/rslib/i18n/strings.json
+    rsync -avP ${anki-nodemodules}/ out/node_modules/
+    chmod +w ./out/node_modules
+
+    mkdir -p out/extracted/python/libs
+    ln -vsf ${anki-rsbridge}/lib/* out/extracted/python/libs/
+    mkdir -p out/rust/release
+    ln -vsf ${anki-rsbridge}/lib/* out/rust/release/librsbridge.so
+
+    export HOME=$NIX_BUILD_TOP
+    yarn config --offline set yarn-offline-mirror $yarnOfflineCache
+    fixup_yarn_lock yarn.lock
+
+    mkdir -p out/pylib/anki
+    mkdir -p out/wheels/
+
+    ${anki-configurator}/bin/configure
+    PIP_USER=1 ${anki-runner}/bin/runner build wheels
   '';
 
-  # UTF-8 locale needed for testing
-  LC_ALL = "en_US.UTF-8";
-
-  # tests fail with to many open files
-  doCheck = !stdenv.isDarwin;
-
-  # - Anki writes some files to $HOME during tests
-  # - Skip tests using network
-  checkPhase = ''
-    HOME=$TMP pytest --ignore tests/test_sync.py
+  doCheck = false;
+  preInstall = ''
+    set -x
+    mkdir dist
+    mv out/wheels/* dist
+    export PYTHONPATH=$PYTHONPATH:${python39.pkgs.protobuf}/lib/python3.9/site-packages
   '';
 
-  installPhase = ''
-    pp=$out/lib/${python.libPrefix}/site-packages
-
-    mkdir -p $out/bin
-    mkdir -p $out/share/applications
-    mkdir -p $doc/share/doc/anki
-    mkdir -p $man/share/man/man1
-    mkdir -p $out/share/mime/packages
-    mkdir -p $out/share/pixmaps
-    mkdir -p $pp
-
-    cat > $out/bin/anki <<EOF
-    #!${python}/bin/python
-    import aqt
-    aqt.run()
-    EOF
-    chmod 755 $out/bin/anki
-
-    cp -v anki.desktop $out/share/applications/
-    cp -v README* LICENSE* $doc/share/doc/anki/
-    cp -v anki.1 $man/share/man/man1/
-    cp -v anki.xml $out/share/mime/packages/
-    cp -v anki.{png,xpm} $out/share/pixmaps/
-    cp -rv locale $out/share/
-    cp -rv anki aqt web $pp/
-
-    # copy the manual into $doc
-    cp -r ${manual}/share/doc/anki/html $doc/share/doc/anki
+  postInstall = ''
+    ls -alh $out/bin
   '';
 
-  # now wrapPythonPrograms from postFixup will add both python and qt env variables
-  dontWrapQtApps = true;
-
-  preFixup = ''
-    makeWrapperArgs+=(
-      "''${qtWrapperArgs[@]}"
-      --prefix PATH ':' "${lame}/bin:${mpv-unwrapped}/bin"
-    )
+  postFixup = ''
+    wrapQtApp $out/bin/anki "''${qtWrapperArgs[@]}"
   '';
-
-  passthru = {
-    inherit manual;
-  };
 
   meta = with lib; {
     homepage = "https://apps.ankiweb.net/";

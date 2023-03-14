@@ -35300,8 +35300,8 @@ with pkgs;
 
   angband = callPackage ../games/angband { };
 
-  anki = python39Packages.callPackage ../games/anki {
-    inherit (darwin.apple_sdk.frameworks) CoreAudio;
+  anki = callPackage ../games/anki {
+    # inherit (darwin.apple_sdk.frameworks) CoreAudio;
   };
   anki-bin = callPackage ../games/anki/bin.nix { buildFHSUserEnv = buildFHSUserEnvBubblewrap; };
 
