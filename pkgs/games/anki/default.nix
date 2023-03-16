@@ -220,6 +220,7 @@ let
       fixup_yarn_lock yarn.lock
       yarn install --offline --frozen-lockfile --ignore-scripts --no-progress --non-interactive
       patchShebangs node_modules/
+      yarn run postinstall --offline
     '';
 
     installPhase = ''
@@ -350,7 +351,6 @@ python39.pkgs.buildPythonApplication {
     export HOME=$NIX_BUILD_TOP
     yarn config --offline set yarn-offline-mirror $yarnOfflineCache
     fixup_yarn_lock yarn.lock
-    patch -p1 < ts/patches/*
 
     ${anki-configurator}/bin/configure
     PIP_USER=1 ${anki-runner}/bin/runner build wheels
