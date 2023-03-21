@@ -7,9 +7,17 @@
         "date": "2021-12-21",
         "new": "cmp-tmux"
     },
+    "ddc-matcher_head": {
+        "date": "2023-03-21",
+        "new": "ddc-filter-matcher_head"
+    },
     "ddc-nvim-lsp": {
         "date": "2022-12-01",
         "new": "ddc-source-nvim-lsp"
+    },
+    "ddc-sorter_rank": {
+        "date": "2023-03-21",
+        "new": "ddc-filter-sorter_rank"
     },
     "gist-vim": {
         "date": "2020-03-27",

@@ -1,6 +1,6 @@
 repo,branch,alias
-https://github.com/Shougo/ddc-matcher_head/,,
-https://github.com/Shougo/ddc-sorter_rank/,,
+https://github.com/Shougo/ddc-filter-matcher_head/,,
+https://github.com/Shougo/ddc-filter-sorter_rank/,,
 https://github.com/Shougo/ddc-source-nvim-lsp/,,
 https://github.com/Shougo/ddc-ui-native/,,
 https://github.com/Shougo/ddc-ui-pum/,,
