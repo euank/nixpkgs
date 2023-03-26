@@ -144,6 +144,7 @@ python39.pkgs.buildPythonApplication {
 
   buildInputs = [
     qt6.qtbase
+    qt6.qtwayland
   ];
   propagatedBuildInputs = with python39.pkgs; [
     # This rather long list came from running:
