@@ -21,15 +21,20 @@
 }:
 
 let
+  # releaseInfo can be updated manually, or with './update.sh' in this
+  # directory.
+  # It should contain everything that varies frequently with updates and may be
+  # automatically updated.
+  releaseInfo = import ./release.nix;
+
   pname = "anki";
-  version = "2.1.61";
-  rev = "0c1eaf4ce66c1b90867af9a79b95d9e507262cf8";
+  inherit (releaseInfo ) commit version;
 
   src = fetchFromGitHub {
     owner = "ankitects";
     repo = "anki";
     rev = version;
-    hash = "sha256-prTGilOw7SfxWevnMsuGq8Zp5uLfVHzTkoAU57NzqHk=";
+    hash = releaseInfo.hash;
     fetchSubmodules = true;
   };
 
@@ -52,7 +57,7 @@ let
   fakeGit = writeShellScriptBin "git" ''
     case "$*" in
       "rev-parse --short=8 HEAD")
-        echo ${builtins.substring 0 8 rev}
+        echo ${builtins.substring 0 8 commit}
       ;;
       *"submodule update "*)
         exit 0
@@ -86,7 +91,7 @@ let
 
   yarnOfflineCache = fetchYarnDeps {
     yarnLock = "${src}/yarn.lock";
-    hash = "sha256-jP0ltYVB52LolGtN/GGjM4I7ira16rRTXfyJlrdjTX4=";
+    hash = releaseInfo.yarnHash;
   };
 
   # https://discourse.nixos.org/t/mkyarnpackage-lockfile-has-incorrect-entry/21586/3
@@ -206,7 +211,7 @@ python3.pkgs.buildPythonApplication {
     mkdir -p out/pylib/anki \
              .git
 
-    echo ${builtins.substring 0 8 rev} > out/buildhash
+    echo ${builtins.substring 0 8 commit} > out/buildhash
     touch out/env
     touch .git/HEAD
 
