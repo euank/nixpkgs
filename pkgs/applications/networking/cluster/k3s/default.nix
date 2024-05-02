@@ -1,6 +1,17 @@
 { lib, callPackage, ... }@args:
 
 let
+  meta = with lib; {
+    description = "A lightweight Kubernetes distribution";
+    license = licenses.asl20;
+    homepage = "https://k3s.io";
+    maintainers = with maintainers; [ euank mic92 superherointj yajo ];
+    platforms = platforms.linux;
+
+    # resolves collisions with other installations of kubectl, crictl, ctr
+    # prefer non-k3s versions
+    priority = 5;
+  };
   k3s_builder = import ./builder.nix lib;
   common = opts: callPackage (k3s_builder opts);
   # extraArgs is the extra arguments passed in by the caller to propogate downward.
@@ -14,20 +25,24 @@ in
 {
   k3s_1_26 = common ((import ./1_26/versions.nix) // {
     updateScript = [ ./update-script.sh "26" ];
+    inherit meta;
   }) extraArgs;
 
   # 1_27 can be built with the same builder as 1_26
   k3s_1_27 = common ((import ./1_27/versions.nix) // {
     updateScript = [ ./update-script.sh "27" ];
+    inherit meta;
   }) extraArgs;
 
   # 1_28 can be built with the same builder as 1_26
   k3s_1_28 = common ((import ./1_28/versions.nix) // {
     updateScript = [ ./update-script.sh "28" ];
+    inherit meta;
   }) extraArgs;
 
   # 1_29 can be built with the same builder as 1_26
   k3s_1_29 = common ((import ./1_29/versions.nix) // {
     updateScript = [ ./update-script.sh "29" ];
+    inherit meta;
   }) extraArgs;
 }

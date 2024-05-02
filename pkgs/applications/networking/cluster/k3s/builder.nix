@@ -21,6 +21,7 @@ lib:
   # run `grep github.com/kubernetes-sigs/cri-tools go.mod | head -n1 | awk '{print $4}'` in the k3s repo at the tag
   criCtlVersion,
   updateScript ? null,
+  meta,
 }:
 
 # builder.nix contains a "builder" expression that, given k3s version and hash
@@ -78,19 +79,6 @@ lib:
 # Those pieces of software we entirely ignore upstream's handling of, and just
 # make sure they're in the path if desired.
 let
-
-  baseMeta = with lib; {
-    description = "A lightweight Kubernetes distribution";
-    license = licenses.asl20;
-    homepage = "https://k3s.io";
-    maintainers = with maintainers; [ euank mic92 superherointj yajo ];
-    platforms = platforms.linux;
-
-    # resolves collisions with other installations of kubectl, crictl, ctr
-    # prefer non-k3s versions
-    priority = 5;
-  };
-
   # https://github.com/k3s-io/k3s/blob/5fb370e53e0014dc96183b8ecb2c25a61e891e76/scripts/build#L19-L40
   versionldflags = [
     "-X github.com/rancher/k3s/pkg/version.Version=v${k3sVersion}"
@@ -145,7 +133,7 @@ let
       mv $out/bin/plugins $out/bin/cni
     '';
 
-    meta = baseMeta // {
+    meta = meta // {
       description = "CNI plugins, as patched by rancher for k3s";
     };
   };
@@ -221,7 +209,7 @@ let
       popd
     '';
 
-    meta = baseMeta // {
+    meta = meta // {
       description = "The various binaries that get packaged into the final k3s binary";
     };
   };
@@ -360,6 +348,5 @@ buildGoModule rec {
     };
   passthru.tests = passthru.mkTests k3sVersion;
 
-
-  meta = baseMeta;
+  inherit meta;
 }
