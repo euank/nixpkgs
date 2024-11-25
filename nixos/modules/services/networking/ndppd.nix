@@ -168,7 +168,7 @@ in {
       # shells out to ip for autowire
       path = with pkgs; [ iproute2 ];
       serviceConfig = {
-        ExecStart = "${pkgs.ndppd}/bin/ndppd -vvv -c ${ndppdConf}";
+        ExecStart = "${pkgs.ndppd}/bin/ndppd -v -c ${ndppdConf}";
       };
     };
   };
