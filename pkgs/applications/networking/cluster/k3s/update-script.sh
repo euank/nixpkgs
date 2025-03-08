@@ -5,6 +5,8 @@ set -x -eu -o pipefail
 
 MINOR_VERSION="${1:?Must provide a minor version number, like '26', as the only argument}"
 
+REPO=euank/k3s
+
 WORKDIR=$(mktemp -d)
 trap "rm -rf ${WORKDIR}" EXIT
 
@@ -18,29 +20,28 @@ cd 1_${MINOR_VERSION}
 
 LATEST_TAG_RAWFILE=${WORKDIR}/latest_tag.json
 curl --silent -f ${GITHUB_TOKEN:+-u ":$GITHUB_TOKEN"} \
-    https://api.github.com/repos/k3s-io/k3s/releases > ${LATEST_TAG_RAWFILE}
+    https://api.github.com/repos/$REPO/tags > ${LATEST_TAG_RAWFILE}
 
 LATEST_TAG_NAME=$(cat ${LATEST_TAG_RAWFILE} | \
-    jq -r 'map(select(.prerelease == false))' | \
-    jq 'map(.tag_name)' | \
+    jq 'map(.name)' | \
     grep -v -e rc -e engine | tail -n +2 | head -n -1 | sed 's|[", ]||g' | sort -rV | grep -E "^v1\.${MINOR_VERSION}\." | head -n1)
 
 K3S_VERSION=$(echo ${LATEST_TAG_NAME} | sed 's/^v//')
 
 K3S_COMMIT=$(curl --silent -f ${GITHUB_TOKEN:+-u ":$GITHUB_TOKEN"} \
-    https://api.github.com/repos/k3s-io/k3s/git/refs/tags \
+    https://api.github.com/repos/$REPO/git/refs/tags \
     | jq -r "map(select(.ref == \"refs/tags/${LATEST_TAG_NAME}\")) | .[0] | .object.sha")
 
-K3S_REPO_SHA256=$(nix-prefetch-url --quiet --unpack https://github.com/k3s-io/k3s/archive/refs/tags/${LATEST_TAG_NAME}.tar.gz)
+K3S_REPO_SHA256=$(nix-prefetch-url --quiet --unpack https://github.com/$REPO/archive/refs/tags/${LATEST_TAG_NAME}.tar.gz)
 
 FILE_SCRIPTS_DOWNLOAD=${WORKDIR}/scripts-download
-curl --silent -f https://raw.githubusercontent.com/k3s-io/k3s/${K3S_COMMIT}/scripts/download > $FILE_SCRIPTS_DOWNLOAD
+curl --silent -f https://raw.githubusercontent.com/$REPO/${K3S_COMMIT}/scripts/download > $FILE_SCRIPTS_DOWNLOAD
 
 FILE_SCRIPTS_VERSION=${WORKDIR}/scripts-version.sh
-curl --silent -f https://raw.githubusercontent.com/k3s-io/k3s/${K3S_COMMIT}/scripts/version.sh > $FILE_SCRIPTS_VERSION
+curl --silent -f https://raw.githubusercontent.com/$REPO/${K3S_COMMIT}/scripts/version.sh > $FILE_SCRIPTS_VERSION
 
 FILE_TRAEFIK_MANIFEST=${WORKDIR}/traefik.yml
-curl --silent -f -o "$FILE_TRAEFIK_MANIFEST" https://raw.githubusercontent.com/k3s-io/k3s/${K3S_COMMIT}/manifests/traefik.yaml
+curl --silent -f -o "$FILE_TRAEFIK_MANIFEST" https://raw.githubusercontent.com/$REPO/${K3S_COMMIT}/manifests/traefik.yaml
 
 CHART_FILES=( $(yq eval --no-doc .spec.chart "$FILE_TRAEFIK_MANIFEST" | xargs -n1 basename) )
 # These files are:
@@ -70,8 +71,13 @@ cat > chart-versions.nix.update <<EOF
 EOF
 mv chart-versions.nix.update chart-versions.nix
 
+# Concatenate all sha256sums, one entry per line
+SHA256_HASHES="$(curl -L "https://github.com/$REPO/releases/download/v${K3S_VERSION}/sha256sum-amd64.txt")
+    \n$(curl -L "https://github.com/$REPO/releases/download/v${K3S_VERSION}/sha256sum-arm64.txt")
+    \n$(curl -L "https://github.com/$REPO/releases/download/v${K3S_VERSION}/sha256sum-arm.txt")"
+
 # Get all airgap images files associated with this release
-IMAGES_ARCHIVES=$(curl "https://api.github.com/repos/k3s-io/k3s/releases/tags/v${K3S_VERSION}" | \
+IMAGES_ARCHIVES=$(curl "https://api.github.com/repos/k3s-io/k3s/releases/tags/v1.32.2+k3s1" | \
     # Filter the assets so that only zstd archives and text files that have "images" in their name remain
     # Modify the name and write the modified name and download URL to a string
     jq -r '.assets[] | select(.name | contains("images")) |
@@ -89,13 +95,13 @@ while read -r name url; do
 done <<<"${IMAGES_ARCHIVES}" | jq --slurp 'reduce .[] as $item ({}; . * $item)' > images-versions.json
 
 FILE_GO_MOD=${WORKDIR}/go.mod
-curl --silent https://raw.githubusercontent.com/k3s-io/k3s/${K3S_COMMIT}/go.mod > $FILE_GO_MOD
+curl --silent https://raw.githubusercontent.com/$REPO/${K3S_COMMIT}/go.mod > $FILE_GO_MOD
 
 
 K3S_ROOT_VERSION=$(grep 'VERSION_ROOT=' ${FILE_SCRIPTS_VERSION} \
     | cut -d'=' -f2 | sed -e 's/"//g' -e 's/^v//')
 K3S_ROOT_SHA256=$(nix-prefetch-url --quiet --unpack \
-    "https://github.com/k3s-io/k3s-root/releases/download/v${K3S_ROOT_VERSION}/k3s-root-amd64.tar")
+    "https://github.com/$REPO-root/releases/download/v${K3S_ROOT_VERSION}/k3s-root-amd64.tar")
 
 CNIPLUGINS_VERSION=$(grep 'VERSION_CNIPLUGINS=' ${FILE_SCRIPTS_VERSION} \
     | cut -d'=' -f2 | sed -e 's/"//g' -e 's/^v//')
