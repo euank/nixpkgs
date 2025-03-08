@@ -204,7 +204,7 @@ let
   # Grab this separately from a build because it's used by both stages of the
   # k3s build.
   k3sRepo = fetchgit {
-    url = "https://github.com/k3s-io/k3s";
+    url = "https://github.com/euank/k3s";
     rev = "v${k3sVersion}";
     sha256 = k3sRepoSha256;
   };

@@ -101,7 +101,7 @@ curl --silent https://raw.githubusercontent.com/$REPO/${K3S_COMMIT}/go.mod > $FI
 K3S_ROOT_VERSION=$(grep 'VERSION_ROOT=' ${FILE_SCRIPTS_VERSION} \
     | cut -d'=' -f2 | sed -e 's/"//g' -e 's/^v//')
 K3S_ROOT_SHA256=$(nix-prefetch-url --quiet --unpack \
-    "https://github.com/$REPO-root/releases/download/v${K3S_ROOT_VERSION}/k3s-root-amd64.tar")
+    "https://github.com/k3s-io/k3s-root/releases/download/v${K3S_ROOT_VERSION}/k3s-root-amd64.tar")
 
 CNIPLUGINS_VERSION=$(grep 'VERSION_CNIPLUGINS=' ${FILE_SCRIPTS_VERSION} \
     | cut -d'=' -f2 | sed -e 's/"//g' -e 's/^v//')
