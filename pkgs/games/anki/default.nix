@@ -31,25 +31,25 @@
 
 let
   pname = "anki";
-  version = "24.11";
-  rev = "87ccd24efd0ea635558b1679614b6763e4f514eb";
+  version = "25.02";
+  rev = "038d85b1d9e1896e93a3e4a26f600c79ddc33611";
 
   src = fetchFromGitHub {
     owner = "ankitects";
     repo = "anki";
     rev = version;
-    hash = "sha256-pAQBl5KbTu7LD3gKBaiyn4QiWeGYoGmxD3sDJfCZVdA=";
+    hash = "sha256-PyXgFsrfGKBdk0VjtA52GmZ6fhO9lE3mXQQEU/GkfDk=";
     fetchSubmodules = true;
   };
 
   cargoDeps = rustPlatform.fetchCargoVendor {
     inherit pname version src;
-    hash = "sha256-4V75+jS250XfUH6B4VBxtL2t308nyKzhDoq86kq6rp4=";
+    hash = lib.fakeHash;
   };
 
   yarnOfflineCache = fetchYarnDeps {
-    yarnLock = "${src}/yarn.lock";
-    hash = "sha256-4KQKWwlr+FuUmomKO3TEoDoSStjnyLutDxCfqGr6jzk=";
+    yarnLock = ./yarn.v1.lock;
+    hash = "sha256-874WnfLvAjC2PUZafyM677JX//MgXgk0+vilTQ/F4U4=";
   };
 
   anki-build-python = python3.withPackages (ps: with ps; [ mypy-protobuf ]);
