@@ -2,24 +2,27 @@
   lib,
   stdenv,
 
+  writableTmpDirAsHomeHook,
+  stdenvNoCC,
   buildEnv,
   cargo,
   fetchFromGitHub,
-  fetchYarnDeps,
   installShellFiles,
   lame,
   mpv-unwrapped,
   ninja,
   nixosTests,
   nodejs,
-  nodejs-slim,
-  fixup-yarn-lock,
+  jq,
   protobuf,
   python3,
   qt6,
   rsync,
   rustPlatform,
+  writeShellScriptBin,
   yarn,
+  yarn-berry,
+  cacert,
 
   AVKit,
   CoreAudio,
@@ -30,26 +33,73 @@
 
 let
   pname = "anki";
-  version = "24.11";
-  rev = "87ccd24efd0ea635558b1679614b6763e4f514eb";
+  version = "25.02";
+  rev = "038d85b1d9e1896e93a3e4a26f600c79ddc33611";
+
+  srcHash = "sha256-PyXgFsrfGKBdk0VjtA52GmZ6fhO9lE3mXQQEU/GkfDk=";
+  cargoHash = "sha256-VOonXcW5jbBTZDReMHYZG1efGp5OsHogfO8CitqJRi4=";
+  yarnHash = "sha256-VpcqQcwkZ1TtOl1xfT3AN9aRqlisgbw3QLVbGfr+ADI=";
 
   src = fetchFromGitHub {
     owner = "ankitects";
     repo = "anki";
     rev = version;
-    hash = "sha256-pAQBl5KbTu7LD3gKBaiyn4QiWeGYoGmxD3sDJfCZVdA=";
+    hash = srcHash;
     fetchSubmodules = true;
   };
 
   cargoDeps = rustPlatform.fetchCargoVendor {
     inherit pname version src;
-    hash = "sha256-4V75+jS250XfUH6B4VBxtL2t308nyKzhDoq86kq6rp4=";
+    hash = cargoHash;
   };
 
-  yarnOfflineCache = fetchYarnDeps {
-    yarnLock = "${src}/yarn.lock";
-    hash = "sha256-4KQKWwlr+FuUmomKO3TEoDoSStjnyLutDxCfqGr6jzk=";
+  # fetchYarnDeps doesn't handle yarn-v2 style lockfiles.
+  # Once https://github.com/NixOS/nixpkgs/pull/355053 is merged, we can
+  # hopefully use something prettier here...
+  # But for now, slap an FOD on it.
+  yarnOfflineCache = stdenvNoCC.mkDerivation {
+    name = "${pname}-${version}-offline-cache";
+    inherit src;
+
+    nativeBuildInputs = [
+      cacert
+      yarn-berry
+      writableTmpDirAsHomeHook
+    ];
+
+    postConfigure = ''
+      yarn config set enableTelemetry false
+      yarn config set enableGlobalCache false
+      yarn config set --json supportedArchitectures.os '[ "linux", "darwin" ]'
+      yarn config set --json supportedArchitectures.cpu '["arm", "arm64", "ia32", "x64"]'
+      yarn config set cacheFolder $out
+    '';
+
+    buildPhase = ''
+      runHook preBuild
+
+      yarn install --mode=skip-build
+
+      runHook postBuild
+    '';
+
+    outputHashMode = "recursive";
+    outputHash = yarnHash;
   };
+
+  # a wrapper for yarn to skip 'install'
+  # We do this because we need to patchShebangs after install, so we do it
+  # ourselves beforehand.
+  # We also, confusingly, have to use yarn-berry to handle the lockfile (anki's
+  # lockfile is too new for yarn), but have to use 'yarn' here, because anki's
+  # build system uses yarn-1 style flags and such.
+  # I think what's going on here is that yarn-1 in anki's normal build system
+  # ends up noticing the yarn-file is too new and shelling out to yarn-berry
+  # itself.
+  noInstallYarn = writeShellScriptBin "yarn" ''
+    [[ "$1" == "install" ]] && exit 0
+    exec ${yarn}/bin/yarn "$@"
+  '';
 
   anki-build-python = python3.withPackages (ps: with ps; [ mypy-protobuf ]);
 
@@ -60,31 +110,6 @@ let
       anki-build-python
     ];
     pathsToLink = [ "/bin" ];
-  };
-
-  # https://discourse.nixos.org/t/mkyarnpackage-lockfile-has-incorrect-entry/21586/3
-  anki-nodemodules = stdenv.mkDerivation {
-    pname = "anki-nodemodules";
-
-    inherit version src yarnOfflineCache;
-
-    nativeBuildInputs = [
-      nodejs-slim
-      fixup-yarn-lock
-      yarn
-    ];
-
-    configurePhase = ''
-      export HOME=$NIX_BUILD_TOP
-      yarn config --offline set yarn-offline-mirror $yarnOfflineCache
-      fixup-yarn-lock yarn.lock
-      yarn install --offline --frozen-lockfile --ignore-scripts --no-progress --non-interactive
-      patchShebangs node_modules/
-    '';
-
-    installPhase = ''
-      mv node_modules $out
-    '';
   };
 in
 python3.pkgs.buildPythonApplication {
@@ -107,15 +132,16 @@ python3.pkgs.buildPythonApplication {
   inherit cargoDeps yarnOfflineCache;
 
   nativeBuildInputs = [
-    yarn
-    fixup-yarn-lock
-
     cargo
     installShellFiles
+    jq
     ninja
+    nodejs
     qt6.wrapQtAppsHook
     rsync
     rustPlatform.cargoSetupHook
+    writableTmpDirAsHomeHook
+    yarn-berry
   ] ++ lib.optional stdenv.hostPlatform.isDarwin swift;
 
   buildInputs = [
@@ -210,7 +236,6 @@ python3.pkgs.buildPythonApplication {
     NODE_BINARY = lib.getExe nodejs;
     PROTOC_BINARY = lib.getExe protobuf;
     PYTHON_BINARY = lib.getExe python3;
-    YARN_BINARY = lib.getExe yarn;
   };
 
   buildPhase = ''
@@ -222,15 +247,24 @@ python3.pkgs.buildPythonApplication {
     echo ${builtins.substring 0 8 rev} > out/buildhash
 
     ln -vsf ${pyEnv} ./out/pyenv
-    rsync --chmod +w -avP ${anki-nodemodules}/ out/node_modules/
-    ln -vsf out/node_modules node_modules
 
-    export HOME=$NIX_BUILD_TOP
-    yarn config --offline set yarn-offline-mirror $yarnOfflineCache
-    fixup-yarn-lock yarn.lock
+    # setup node_modules, including patching
+    jq 'del(.packageManager)' package.json > package.json.tmp && mv package.json.tmp package.json
 
+    export cachePath=$(mktemp -d)
+    cp -r $yarnOfflineCache/* $cachePath
+
+    yarn config set enableTelemetry false
+    yarn config set enableGlobalCache false
+    yarn config set cacheFolder $cachePath
+    yarn install
+
+    patchShebangs node_modules/
+    mv node_modules out
+
+    # Run everything else
     patchShebangs ./ninja
-    PIP_USER=1 ./ninja build wheels
+    YARN_BINARY="${lib.getExe noInstallYarn}" PIP_USER=1 ./ninja build wheels
   '';
 
   # mimic https://github.com/ankitects/anki/blob/76d8807315fcc2675e7fa44d9ddf3d4608efc487/build/ninja_gen/src/python.rs#L232-L250
