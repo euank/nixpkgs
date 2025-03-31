@@ -36,7 +36,7 @@ let
 
   srcHash = "sha256-PyXgFsrfGKBdk0VjtA52GmZ6fhO9lE3mXQQEU/GkfDk=";
   cargoHash = "sha256-VOonXcW5jbBTZDReMHYZG1efGp5OsHogfO8CitqJRi4=";
-  yarnHash = "sha256-HOluQh3hBi97N4B1rQ3SeG8kq3TcaPpHoem6qpy4UmE=";
+  yarnHash = "sha256-Is0YgqqVbXwuy1vNt1BkOeviwcAB5UKHTDoBReOyV54=";
 
   src = fetchFromGitHub {
     owner = "ankitects";
