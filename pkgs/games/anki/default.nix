@@ -19,11 +19,13 @@
   qt6,
   rsync,
   rustPlatform,
+  uv,
   writeShellScriptBin,
   yarn,
   yarn-berry_4,
 
   swift,
+  fetchgit,
 
   mesa,
 }:
@@ -32,12 +34,13 @@ let
   yarn-berry = yarn-berry_4;
 
   pname = "anki";
-  version = "25.02.5";
-  rev = "29192d156ae60d6ce35e80ccf815a8331c9db724";
+  version = "25.07.1";
+  rev = "a83a6b5928c6563d12e7b66d4f7b7b2f51b6f22b";
 
-  srcHash = "sha256-lx3tK57gcQpwmiqUzO6iU7sE31LPFp6s80prYaB2jHE=";
-  cargoHash = "sha256-BPCfeUiZ23FdZaF+zDUrRZchauNZWQ3gSO+Uo9WRPes=";
-  yarnHash = "sha256-3G+9N3xOzog3XDCKDQJCY/6CB3i6oXixRgxEyv7OG3U=";
+  srcHash = "sha256-OiyuvSRJu6urjf5b78F8A5Z/zoOXoErCpzCKcxNm8Jk=";
+  cargoHash = "sha256-611vbe0RtmaCuEkX4wEtjvuYkOGGrxkl/r2KeRzrdnk=";
+  yarnHash = "sha256-Hb3HGIB0HPM6LXkfLIbPONFBTqWPdTrvYP2CeUsIVTE=";
+  uvHash = "sha256-C31eALxceU3A85wV9QADc2AmKEcwbSLQRRXKLs4b3DU=";
 
   src = fetchFromGitHub {
     owner = "ankitects";
@@ -92,6 +95,7 @@ python3.pkgs.buildPythonApplication rec {
     ./patches/disable-auto-update.patch
     ./patches/remove-the-gl-library-workaround.patch
     ./patches/skip-formatting-python-code.patch
+    ./patches/fix-offline-uv-build.patch
     # Used in with-addons.nix
     ./patches/allow-setting-addons-folder.patch
   ];
@@ -103,6 +107,34 @@ python3.pkgs.buildPythonApplication rec {
     inherit missingHashes;
     yarnLock = "${src}/yarn.lock";
     hash = yarnHash;
+  };
+
+  uvOfflineCache = stdenv.mkDerivation {
+    pname = "anki-uv-deps";
+    inherit version src;
+
+    UV_NO_MANAGED_PYTHON = true;
+    UV_SYSTEM_PYTHON = true;
+
+    nativeBuildInputs = [
+      python3
+      uv
+    ];
+
+    outputHashAlgo = "sha256";
+    outputHashMode = "recursive";
+    outputHash = uvHash;
+
+    dontBuild = true;
+
+    installPhase = ''
+      uv sync \
+        --locked --reinstall --cache-dir $out --python python3 \
+        --all-packages
+      # don't cache the interpreter, that leads to a store reference to python,
+      # which we don't want
+      rm -rf $out/interpreter-v4
+    '';
   };
 
   nativeBuildInputs = [
@@ -204,6 +236,11 @@ python3.pkgs.buildPythonApplication rec {
     NODE_BINARY = lib.getExe nodejs;
     PROTOC_BINARY = lib.getExe protobuf;
     PYTHON_BINARY = lib.getExe python3;
+    UV_BINARY = lib.getExe uv;
+    UV_NO_MANAGED_PYTHON = "1";
+    UV_SYSTEM_PYTHON = true;
+    UV_PYTHON_DOWNLOADS = "never";
+    UV_OFFLINE = "1";
   };
 
   buildPhase = ''
@@ -213,8 +250,18 @@ python3.pkgs.buildPythonApplication rec {
     mkdir -p out/pylib/anki .git
 
     echo ${builtins.substring 0 8 rev} > out/buildhash
+    echo ${python3.version} > .python-version
 
-    ln -vsf ${pyEnv} ./out/pyenv
+    mkdir ./out/pyenv
+    rsync -av "${pyEnv}/" ./out/pyenv
+    chmod +w ./out/pyenv
+
+    # put the uv cache dir in a writeable location because for some reason uv
+    # tries to write to it???
+    mkdir ./out/uv
+    rsync -av "${uvOfflineCache}/" ./out/uv
+    export UV_CACHE_DIR=$PWD/out/uv
+    chmod -R +w ./out/uv
 
     mv node_modules out
 
@@ -257,11 +304,11 @@ python3.pkgs.buildPythonApplication rec {
   '';
 
   postInstall = ''
-    install -D -t $out/share/applications qt/bundle/lin/anki.desktop
+    install -D -t $out/share/applications qt/launcher/lin/anki.desktop
     install -D -t $doc/share/doc/anki README* LICENSE*
-    install -D -t $out/share/mime/packages qt/bundle/lin/anki.xml
-    install -D -t $out/share/pixmaps qt/bundle/lin/anki.{png,xpm}
-    installManPage qt/bundle/lin/anki.1
+    install -D -t $out/share/mime/packages qt/launcher/lin/anki.xml
+    install -D -t $out/share/pixmaps qt/launcher/lin/anki.{png,xpm}
+    installManPage qt/launcher/lin/anki.1
   '';
 
   preFixup = ''
