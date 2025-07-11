@@ -40,7 +40,7 @@ let
   srcHash = "sha256-OiyuvSRJu6urjf5b78F8A5Z/zoOXoErCpzCKcxNm8Jk=";
   cargoHash = "sha256-611vbe0RtmaCuEkX4wEtjvuYkOGGrxkl/r2KeRzrdnk=";
   yarnHash = "sha256-Hb3HGIB0HPM6LXkfLIbPONFBTqWPdTrvYP2CeUsIVTE=";
-  uvHash = "sha256-7a0PRgaZtRoV0C8IbBq3ipRUXMW8LNbctGxU9ej1pq4=";
+  uvHash = "sha256-C31eALxceU3A85wV9QADc2AmKEcwbSLQRRXKLs4b3DU=";
 
   src = fetchFromGitHub {
     owner = "ankitects";
@@ -130,7 +130,8 @@ python3.pkgs.buildPythonApplication rec {
     installPhase = ''
       python3 --version
       uv sync \
-        --locked --reinstall --cache-dir $out --python python3
+        --locked --reinstall --cache-dir $out --python python3 \
+        --all-packages
       # don't cache the interpreter, that leads to a store reference to python,
       # which we don't want
       rm -rf $out/interpreter-v4
