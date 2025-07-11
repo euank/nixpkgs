@@ -305,11 +305,11 @@ python3.pkgs.buildPythonApplication rec {
   '';
 
   postInstall = ''
-    install -D -t $out/share/applications qt/bundle/lin/anki.desktop
+    install -D -t $out/share/applications qt/launcher/lin/anki.desktop
     install -D -t $doc/share/doc/anki README* LICENSE*
-    install -D -t $out/share/mime/packages qt/bundle/lin/anki.xml
-    install -D -t $out/share/pixmaps qt/bundle/lin/anki.{png,xpm}
-    installManPage qt/bundle/lin/anki.1
+    install -D -t $out/share/mime/packages qt/launcher/lin/anki.xml
+    install -D -t $out/share/pixmaps qt/launcher/lin/anki.{png,xpm}
+    installManPage qt/launcher/lin/anki.1
   '';
 
   preFixup = ''
