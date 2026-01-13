@@ -11,7 +11,7 @@ anki-utils.buildAnkiAddon (finalAttrs: {
     owner = "cav71";
     repo = "syntax-highlighting-ng";
     sparseCheckout = [ "src/syntax_highlighting_ng" ];
-    tag = "v${finalAttrs.version}";
+    tag = finalAttrs.version;
     hash = "sha256-kNZBNf1O6CDYMilvfITCM0pC4OZSP0/rKReBnRYwUUw=";
   };
   sourceRoot = "${finalAttrs.src.name}/src/syntax_highlighting_ng";
