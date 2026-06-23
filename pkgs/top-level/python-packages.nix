@@ -3110,6 +3110,8 @@ self: super: with self; {
 
   commonregex = callPackage ../development/python-modules/commonregex { };
 
+  complexipy = callPackage ../development/python-modules/complexipy { };
+
   compit-inext-api = callPackage ../development/python-modules/compit-inext-api { };
 
   compliance-trestle = callPackage ../development/python-modules/compliance-trestle { };
