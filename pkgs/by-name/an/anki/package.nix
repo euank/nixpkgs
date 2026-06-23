@@ -37,12 +37,12 @@ let
   yarn-berry = yarn-berry_4;
 
   pname = "anki";
-  version = "25.09.2";
-  rev = "3890e12c9e48c028c3f12aa58cb64bd9f8895e30";
+  version = "26.05";
+  rev = "e64c6b1aee3e8d668fb8bbe084beada8e070d985";
 
-  srcHash = "sha256-0hLTQR7f7s58DUgAZbDeREMee6VrqAKHyhS1Hs/Em1A=";
-  cargoHash = "sha256-qcB+r9VzBz6ACZaXPL26MOxxtb/h2OIuxyc54vUgfPM=";
-  yarnHash = "sha256-EmKeHORr/+qsDzAwtearMi7qodcCgjeAQcy+79HL7Vg=";
+  srcHash = "sha256-LJNDJsRhyvngtcmKzHJ6VFFQirCZRqwuKTcSThu+1mk=";
+  cargoHash = "sha256-A5bxKStcuK7Ic8g4uueE5ipSttYvOctaUamEwwqVvJw=";
+  yarnHash = "sha256-fcqGk39xXDh68fzomcgdsL3Y/XcpnRMYGxDy24R4HBQ=";
   pythonDeps =
     with python3Packages;
     [
@@ -58,40 +58,78 @@ let
       # aqt runtime deps
       beautifulsoup4
       flask
-      flask-cors
       jsonschema
-      pip-system-certs
       pyqt6
       pyqt6-sip
       pyqt6-webengine
       send2trash
       waitress
 
-      # build-system deps (needed by uv for editable installs)
+      # build-system deps
+      briefcase
+      coverage
+      complexipy
+      cogapp
       editables
       hatchling
       pathspec
       pluggy
       setuptools
+      sphinx
+      myst-parser
+      sphinx-book-theme
+      sphinx-autoapi
+      sphinx-autobuild
+      sphinxcontrib-mermaid
       trove-classifiers
 
       # transitive deps
+      anyio
       attrs
+      binaryornot
       blinker
+      bracex
+      build
       certifi
+      cfgv
+      chardet
       charset-normalizer
+      click-extra
       click
+      cookiecutter
+      deepmerge
+      dmgbuild
+      ds-store
+      filelock
+      gitdb
+      gitpython
+      h11
+      httpcore
+      httpx
+      identify
       idna
+      imagesize
       itsdangerous
       jinja2
       jsonschema-specifications
+      mac-alias
       markupsafe
+      mdit-py-plugins
+      mdurl
+      nodeenv
       packaging
       pip
+      platformdirs
       pysocks
+      pluggy
+      psutils
+      pygments
+      pygments-ansi-color
       referencing
+      rich
       rpds-py
       soupsieve
+      truststore
       urllib3
       werkzeug
       wrapt
