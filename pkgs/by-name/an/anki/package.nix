@@ -94,11 +94,10 @@ let
       cfgv
       chardet
       charset-normalizer
-      click-extra
+      # click-extra
       click
       cookiecutter
       deepmerge
-      dmgbuild
       ds-store
       filelock
       gitdb
@@ -122,9 +121,9 @@ let
       platformdirs
       pysocks
       pluggy
-      psutils
+      # psutils
       pygments
-      pygments-ansi-color
+      # pygments-ansi-color
       referencing
       rich
       rpds-py
@@ -137,6 +136,7 @@ let
     ++ lib.optionals stdenv.hostPlatform.isDarwin [
       anki-audio
       anki-mac-helper
+      dmgbuild
     ];
 
   src = fetchFromGitHub {
